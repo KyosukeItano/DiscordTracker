@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>Discord Voice Log</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 10px;
+      width: 300px;
+    }
+    #logs {
+      max-height: 300px;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      padding: 5px;
+      background: #f9f9f9;
+    }
+    .log-entry {
+      padding: 2px 0;
+      border-bottom: 1px solid #ddd;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <h3>ボイスチャンネル入室ログ</h3>
+  <div id="logs"></div>
+</body>
+<script src="popup.js"></script>
+</html>
