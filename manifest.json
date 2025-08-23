@@ -3,7 +3,7 @@
   "name": "DiscordTracker",
   "version": "1.0",
   "description": "Discord ボイスチャンネルの入室ログを表示します",
-  "permissions": ["storage", "activeTab", "scripting"],
+  "permissions": ["storage", "activeTab", "scripting", "tabs"],
   "host_permissions": ["https://discord.com/*"],
   "background": {
     "service_worker": "background.js"

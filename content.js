@@ -38,7 +38,19 @@ function checkChannels() {
   });
 }
 
+// MutationObserver版（DOM変化時のみチェック）
+function observeChannels() {
+  const observer = new MutationObserver(() => {
+    checkChannels();
+  });
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+  });
+}
+
 window.addEventListener("load", () => {
   console.log("Start monitoring voice channels...");
-  setInterval(checkChannels, 3000);
+  observeChannels();
 });
