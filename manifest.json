@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "DiscordTracker",
-  "version": "1.0",
+  "version": "1.1",
   "description": "Discord ボイスチャンネルの入室ログを表示します",
   "permissions": ["storage", "activeTab", "scripting", "tabs"],
   "host_permissions": ["https://discord.com/*"],
