@@ -1,38 +1,49 @@
+function calcDuration(join, leave) {
+  const j = new Date(join);
+  const l = new Date(leave);
+  const diffMs = l - j;
+  const minutes = Math.floor(diffMs / 60000);
+  const seconds = Math.floor((diffMs % 60000) / 1000);
+  return `${minutes}分${seconds}秒`;
+}
+
 chrome.runtime.onMessage.addListener((msg) => {
-  if (msg.type === "newLog") {
-    chrome.storage.local.get({ logs: [] }, (data) => {
-      // 新しいログを先頭に追加（降順）
-      data.logs.unshift(msg.message);
+  chrome.storage.local.get({ logs: [] }, (data) => {
+    let logs = data.logs;
 
-      // 最大30件に制限
-      if (data.logs.length > 30) {
-        data.logs = data.logs.slice(0, 30);
+    if (msg.type === "userJoin") {
+      logs.unshift({
+        channel: msg.channel,
+        user: msg.user,
+        joinTime: msg.joinTime,
+        leaveTime: null,
+        duration: null
+      });
+    }
+
+    if (msg.type === "userLeave") {
+      // 同じユーザー・同じチャンネル・未退出のログを探す
+      const log = logs.find(
+        (l) =>
+          l.channel === msg.channel &&
+          l.user === msg.user &&
+          !l.leaveTime
+      );
+      if (log) {
+        log.leaveTime = msg.leaveTime;
+        log.duration = calcDuration(log.joinTime, log.leaveTime);
       }
+    }
 
-      chrome.storage.local.set({ logs: data.logs });
+    // 最大30件
+    if (logs.length > 30) logs = logs.slice(0, 30);
 
-      // バッジ更新
-      chrome.action.setBadgeText({ text: data.logs.length.toString() });
-      chrome.action.setBadgeBackgroundColor({ color: "#ff0000" });
-    });
-  }
+    chrome.storage.local.set({ logs });
+    chrome.action.setBadgeText({ text: logs.length.toString() });
+    chrome.action.setBadgeBackgroundColor({ color: "#ff0000" });
+  });
 
   if (msg.type === "clearBadge") {
     chrome.action.setBadgeText({ text: "" });
   }
-});
-
-// 🔹 拡張がインストール/更新されたときに隠しタブでDiscordを開く
-chrome.runtime.onInstalled.addListener(() => {
-  const discordUrl = "https://discord.com/channels/1235612758188228608/1235612758188228610";
-
-  chrome.tabs.query({ url: discordUrl }, (tabs) => {
-    if (tabs.length === 0) {
-      chrome.tabs.create({
-        url: discordUrl,
-        active: false,   // ユーザーにフォーカスしない
-        pinned: true     // 間違って閉じにくくする
-      });
-    }
-  });
 });

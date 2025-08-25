@@ -4,32 +4,16 @@
   <meta charset="UTF-8" />
   <title>Discord Voice Log</title>
   <style>
-    body {
-      font-family: sans-serif;
-      margin: 10px;
-      width: 300px;
-    }
-    #logs {
-      max-height: 300px;
-      overflow-y: auto;
-      border: 1px solid #ccc;
-      padding: 5px;
-      background: #f9f9f9;
-    }
-    .log-entry {
-      padding: 2px 0;
-      border-bottom: 1px solid #ddd;
-      font-size: 14px;
-    }
-    #clearLogs {
-      margin-top: 8px;
-      width: 100%;
-      padding: 6px;
-    }
+    body { font-family: sans-serif; margin: 10px; width: 300px; }
+    #logs { max-height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 5px; background: #f9f9f9; }
+    .log-entry { padding: 4px; border-bottom: 1px solid #ddd; font-size: 14px; cursor: pointer; }
+    .log-details { display: none; font-size: 12px; margin-left: 10px; color: #555; }
+    .log-entry.open .log-details { display: block; }
+    #clearLogs { margin-top: 8px; width: 100%; padding: 6px; }
   </style>
 </head>
 <body>
-  <h3>ボイスチャンネル入室ログ</h3>
+  <h3>ボイスチャンネル入退室ログ</h3>
   <div id="logs"></div>
   <button id="clearLogs">ログを削除</button>
   <script src="popup.js"></script>

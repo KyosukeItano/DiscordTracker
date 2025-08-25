@@ -5,21 +5,34 @@ function renderLogs(logs) {
   logs.forEach((log) => {
     const div = document.createElement("div");
     div.className = "log-entry";
-    div.textContent = log;
+    div.textContent = `${log.joinTime} に ${log.channel} に ${log.user} が入室`;
+
+    // 詳細（退出情報）
+    const details = document.createElement("div");
+    details.className = "log-details";
+    if (log.leaveTime) {
+      details.textContent = `${log.leaveTime} に退出（${log.duration}）`;
+    } else {
+      details.textContent = "まだ退出していません";
+    }
+    div.appendChild(details);
+
+    // アコーディオン開閉
+    div.addEventListener("click", () => {
+      div.classList.toggle("open");
+    });
+
     logsContainer.appendChild(div);
   });
 }
 
 chrome.storage.local.get({ logs: [], unreadCount: 0 }, (data) => {
   renderLogs(data.logs);
-
-  // popupを開いたら未読数をリセット
   chrome.storage.local.set({ unreadCount: 0 }, () => {
     chrome.action.setBadgeText({ text: "" });
   });
 });
 
-// 「ログ削除」ボタン
 document.getElementById("clearLogs").addEventListener("click", () => {
   chrome.storage.local.set({ logs: [] }, () => {
     renderLogs([]);
@@ -27,5 +40,4 @@ document.getElementById("clearLogs").addEventListener("click", () => {
   });
 });
 
-// バッジ数リセット要求
 chrome.runtime.sendMessage({ type: "clearBadge" });
