@@ -1,8 +1,5 @@
 const channelsToWatch = ["診察室", "教習所", "配信"];
 
-// 前回のユーザー状態を保持
-let previousState = {};
-
 function formatDate(date) {
   const yyyy = date.getFullYear();
   const mm = String(date.getMonth() + 1).padStart(2, '0');
@@ -13,50 +10,31 @@ function formatDate(date) {
   return `${yyyy}/${mm}/${dd} ${hh}:${mi}:${ss}`;
 }
 
+function sendLog(channelName) {
+  const now = new Date();
+  const timeStr = formatDate(now);
+  const logMsg = `${timeStr} に ${channelName} に入室検知`;
+  chrome.runtime.sendMessage({ type: "newLog", message: logMsg, channel: channelName, time: timeStr });
+}
+
 function checkChannels() {
   channelsToWatch.forEach((channelName) => {
     const channelEls = [...document.querySelectorAll(`[aria-label^="${channelName}"]`)];
-    if (!channelEls.length) return;
-
-    const channelEl = channelEls[0];
-
-    // 現在のユーザー一覧を取得
-    const userEls = channelEl.querySelectorAll("ul[aria-label] li[aria-label]");
-    const currentUsers = new Set();
-    userEls.forEach((el) => {
-      const name = el.getAttribute("aria-label");
-      if (name) currentUsers.add(name);
-    });
-
-    // 前回の状態
-    const prevUsers = previousState[channelName] || new Set();
-
-    // 入室ユーザー
-    currentUsers.forEach((u) => {
-      if (!prevUsers.has(u)) {
-        chrome.runtime.sendMessage({
-          type: "userJoin",
-          channel: channelName,
-          user: u,
-          joinTime: formatDate(new Date())
-        });
+    channelEls.forEach((channelEl) => {
+      const label = channelEl.getAttribute("aria-label");
+      if (label && label.includes("人のユーザー")) {
+        const match = label.match(/(\d+) 人のユーザー/);
+        const userCount = match ? parseInt(match[1]) : 0;
+        if (userCount > 0) {
+          if (!channelEl.dataset.notified) {
+            sendLog(channelName);
+            channelEl.dataset.notified = "true";
+          }
+        } else {
+          channelEl.dataset.notified = "";
+        }
       }
     });
-
-    // 退出ユーザー
-    prevUsers.forEach((u) => {
-      if (!currentUsers.has(u)) {
-        chrome.runtime.sendMessage({
-          type: "userLeave",
-          channel: channelName,
-          user: u,
-          leaveTime: formatDate(new Date())
-        });
-      }
-    });
-
-    // 状態更新
-    previousState[channelName] = currentUsers;
   });
 }
 
